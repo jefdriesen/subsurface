@@ -19,7 +19,11 @@ int fit_file_import(const std::string &buffer, struct divelog *log)
 
 	device_data_t devdata;
 	devdata.log = log;
+#ifdef DC_FIELD_STRING
 	int ret = prepare_device_descriptor(model, DC_FAMILY_GARMIN, devdata);
+#else
+	int ret = 0;
+#endif
 	if (ret == 0)
 		return report_error("%s", translate("gettextFromC", "Unknown DC"));
 

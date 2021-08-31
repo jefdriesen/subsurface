@@ -80,6 +80,7 @@ void DiveEventItem::setupPixmap(const struct gasmix lastgasmix, divemode_t lastd
 			else
 				setPixmap(pixmaps.gaschangeEAN);
 		}
+#ifdef SAMPLE_FLAGS_SEVERITY_MASK
 	} else if ((((ev.flags & SAMPLE_FLAGS_SEVERITY_MASK) >> SAMPLE_FLAGS_SEVERITY_SHIFT) == 1) ||
 		    // those are useless internals of the dive computer
 		   (same_string_caseinsensitive(ev.name.c_str(), "SP change") && ev.time.seconds == 0)) {
@@ -89,6 +90,7 @@ void DiveEventItem::setupPixmap(const struct gasmix lastgasmix, divemode_t lastd
 		// that allows tooltips to work when we don't want to show a specific
 		// pixmap for an event, but want to show the event value in the tooltip
 		setPixmap(pixmaps.transparent);
+#endif
 	} else if (severity == EVENT_SEVERITY_INFO) {
 		setPixmap(pixmaps.info);
 	} else if (severity == EVENT_SEVERITY_WARN) {
