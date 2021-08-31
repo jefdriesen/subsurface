@@ -105,6 +105,7 @@ bool same_event(const struct event *a, const struct event *b)
 
 extern enum event_severity get_event_severity(const struct event *ev)
 {
+#ifdef SAMPLE_FLAGS_SEVERITY_MASK
 	switch (ev->flags & SAMPLE_FLAGS_SEVERITY_MASK) {
 	case SAMPLE_FLAGS_SEVERITY_INFO:
 		return EVENT_SEVERITY_INFO;
@@ -115,4 +116,7 @@ extern enum event_severity get_event_severity(const struct event *ev)
 	default:
 		return EVENT_SEVERITY_NONE;
 	}
+#else
+	return EVENT_SEVERITY_NONE;
+#endif
 }
