@@ -54,6 +54,13 @@
 #include "tag.h"
 #include "format.h"
 
+#ifndef STRING_KEY_FIRMWARE_VERSION
+#define STRING_KEY_FIRMWARE_VERSION "FW Version"
+#endif
+#ifndef STRING_KEY_SERIAL_NUMBER
+#define STRING_KEY_SERIAL_NUMBER "Serial"
+#endif
+
 /*
  * Defined in import-asd.cpp and shared here.
  */

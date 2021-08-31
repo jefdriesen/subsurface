@@ -219,10 +219,12 @@ static dc_status_t parse_gasmixes(device_data_t *devdata, struct dive *dive, dc_
 					cyl.cylinder_use = OXYGEN;
 
 					break;
+#if 0
 				case DC_USAGE_OPEN_CIRCUIT:
 					cyl.cylinder_use = OC_GAS;
 
 					break;
+#endif
 				default:
 					if (dive->dcs[0].divemode == CCR)
 						cyl.cylinder_use = DILUENT;
@@ -247,7 +249,11 @@ static dc_status_t parse_gasmixes(device_data_t *devdata, struct dive *dive, dc_
 				cyl.type.size.mliter = lrint(tank.volume * 1000);
 				cyl.type.workingpressure.mbar = lrint(tank.workpressure * 1000);
 
-				if (tank.type & DC_TANKVOLUME_IMPERIAL) {
+#ifdef DC_TANKINFO_IMPERIAL
+				if (tank.type & DC_TANKINFO_IMPERIAL) {
+#else
+				if (tank.type == DC_TANKVOLUME_IMPERIAL) {
+#endif
 					if (devdata->model == "Suunto EON Steel") {
 						/* Suunto EON Steele gets this wrong. Badly.
 						 * but on the plus side it only supports a few imperial sizes,
@@ -608,6 +614,7 @@ uint32_t calculate_string_hash(const char *str)
 	return calculate_diveid((const unsigned char *)str, strlen(str));
 }
 
+#ifdef DC_FIELD_STRING
 static void parse_string_field(device_data_t *devdata, struct dive *dive, dc_field_string_t *str, bool got_location)
 {
 	// Our dive ID is the string hash of the "Dive ID" string
@@ -642,6 +649,7 @@ static void parse_string_field(device_data_t *devdata, struct dive *dive, dc_fie
 		}
 	}
 }
+#endif
 
 static dc_status_t libdc_header_parser(dc_parser_t *parser, device_data_t *devdata, struct dive *dive)
 {
@@ -780,6 +788,7 @@ static dc_status_t libdc_header_parser(dc_parser_t *parser, device_data_t *devda
 		got_location = true;
 	}
 
+#ifdef DC_FIELD_STRING
 	// The dive parsing may give us more device information
 	int idx;
 	for (idx = 0; idx < 100; idx++) {
@@ -792,6 +801,7 @@ static dc_status_t libdc_header_parser(dc_parser_t *parser, device_data_t *devda
 		parse_string_field(devdata, dive, &str, got_location);
 		free((void *)str.value); // libdc gives us copies of the value-string.
 	}
+#endif
 
 	dc_divemode_t divemode;
 	rc = dc_parser_get_field(parser, DC_FIELD_DIVEMODE, 0, &divemode);
@@ -1686,7 +1696,9 @@ dc_status_t libdc_buffer_parser(struct dive *dive, device_data_t *data, const un
 	case DC_FAMILY_HW_FROG:
 	case DC_FAMILY_HW_OSTC3:
 	case DC_FAMILY_DIVESOFT_FREEDOM:
+#ifdef DC_FIELD_STRING
 	case DC_FAMILY_GARMIN:
+#endif
 		rc = dc_parser_new2(&parser, data->context, data->descriptor, buffer, size);
 		break;
 	default:

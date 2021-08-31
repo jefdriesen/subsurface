@@ -69,6 +69,7 @@ bool event::operator==(const event &b) const
 
 enum event_severity event::get_severity() const
 {
+#ifdef SAMPLE_FLAGS_SEVERITY_MASK
 	switch (flags & SAMPLE_FLAGS_SEVERITY_MASK) {
 	case SAMPLE_FLAGS_SEVERITY_INFO:
 		return EVENT_SEVERITY_INFO;
@@ -79,6 +80,9 @@ enum event_severity event::get_severity() const
 	default:
 		return EVENT_SEVERITY_NONE;
 	}
+#else
+	return EVENT_SEVERITY_NONE;
+#endif
 }
 
 event_loop::event_loop(const char *name, const struct divecomputer &dc) : name(name), idx(0), dc(dc)

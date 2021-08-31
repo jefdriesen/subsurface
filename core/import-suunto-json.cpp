@@ -42,6 +42,13 @@
 
 #include <libdivecomputer/parser.h>
 
+#ifndef STRING_KEY_FIRMWARE_VERSION
+#define STRING_KEY_FIRMWARE_VERSION "FW Version"
+#endif
+#ifndef STRING_KEY_SERIAL_NUMBER
+#define STRING_KEY_SERIAL_NUMBER "Serial"
+#endif
+
 /* Suunto app exports all activities (swimming, running, etc.).
  * ActivityType 51 is scuba diving -- skip everything else. */
 static const int SUUNTO_ACTIVITY_SCUBA = 51;

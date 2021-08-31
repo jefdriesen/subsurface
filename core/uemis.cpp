@@ -23,6 +23,13 @@
 #include <libdivecomputer/parser.h>
 #include <libdivecomputer/version.h>
 
+#ifndef STRING_KEY_FIRMWARE_VERSION
+#define STRING_KEY_FIRMWARE_VERSION "FW Version"
+#endif
+#ifndef STRING_KEY_SERIAL_NUMBER
+#define STRING_KEY_SERIAL_NUMBER "Serial"
+#endif
+
 #ifdef _MSC_VER
 #pragma pack(push, 1)
 #endif

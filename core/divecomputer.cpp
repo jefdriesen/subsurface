@@ -13,6 +13,13 @@
 #include <stdlib.h>
 #include <tuple>
 
+#ifndef STRING_KEY_FIRMWARE_VERSION
+#define STRING_KEY_FIRMWARE_VERSION "FW Version"
+#endif
+#ifndef STRING_KEY_SERIAL_NUMBER
+#define STRING_KEY_SERIAL_NUMBER "Serial"
+#endif
+
 divecomputer::divecomputer() = default;
 divecomputer::~divecomputer() = default;
 divecomputer::divecomputer(const divecomputer &) = default;
