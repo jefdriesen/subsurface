@@ -718,10 +718,12 @@ dc_status_t qt_ble_close(void *io)
 }
 static void checkThreshold()
 {
+#if 0
 	if (++debugCounter == DEBUG_THRESHOLD) {
 		QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = false"));
 		report_info("turning off further BT debug output");
 	}
+#endif
 }
 
 /*
