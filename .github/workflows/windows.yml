@@ -4,13 +4,9 @@ on:
   push:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
   pull_request:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
 
 jobs:
   build:
@@ -24,12 +20,6 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-
-    - name: set the version information
-      id: version_number
-      uses: ./.github/actions/manage-version
-      with:
-        nightly-builds-secret: ${{ secrets.NIGHTLY_BUILDS }}
 
     - name: get other dependencies
       env:
@@ -50,24 +40,10 @@ jobs:
         grep "Built target installer" build.log
 
     - name: publish pull request artifacts
-      if: github.event_name == 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: Subsurface-Windows-${{ steps.version_number.outputs.version }}
+        name: Subsurface-Windows
         path: |
          subsurface*.exe*
          smtk2ssrf*.exe
 
-    # only publish a 'release' on push events (those include merging a PR)
-    - name: upload binaries
-      if: github.event_name == 'push'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.version_number.outputs.version }}
-        repository: ${{ github.repository_owner }}/nightly-builds
-        token: ${{ secrets.NIGHTLY_BUILDS }}
-        prerelease: false
-        fail_on_unmatched_files: true
-        files: |
-         ./subsurface*.exe*
-         ./smtk2ssrf*.exe
