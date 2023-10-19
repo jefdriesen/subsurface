@@ -1478,7 +1478,7 @@ static dc_status_t sync_divecomputer_time(dc_device_t *device)
 	return dc_device_timesync(device, &now);
 }
 
-const char *do_libdivecomputer_import(device_data_t *data)
+const char *do_libdivecomputer_import(device_data_t *data, dc_authfunc_data_t *auth)
 {
 	dc_status_t rc;
 	const char *err;
@@ -1491,6 +1491,7 @@ const char *do_libdivecomputer_import(device_data_t *data)
 	data->iostream = NULL;
 	data->fingerprint = NULL;
 	data->fsize = 0;
+	data->auth = auth;
 
 	if (data->libdc_log && !logfile_name.empty())
 		fp = subsurface_fopen(logfile_name.c_str(), "w");

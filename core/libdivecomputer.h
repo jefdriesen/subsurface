@@ -30,6 +30,13 @@ struct dive;
 struct divelog;
 struct devices;
 
+typedef void (*dc_authfunc_t) (unsigned char data[], size_t size, void *userdata);
+
+typedef struct dc_authfunc_data_t {
+	dc_authfunc_t func;
+	void *userdata;
+} dc_authfunc_data_t;
+
 typedef struct {
 	dc_descriptor_t *descriptor;
 	const char *vendor, *product, *devname;
@@ -49,10 +56,11 @@ typedef struct {
 	FILE *libdc_logfile;
 	struct divelog *log;
 	void *androidUsbDeviceDescriptor;
+	dc_authfunc_data_t *auth;
 } device_data_t;
 
 const char *errmsg (dc_status_t rc);
-const char *do_libdivecomputer_import(device_data_t *data);
+const char *do_libdivecomputer_import(device_data_t *data, dc_authfunc_data_t *auth);
 const char *do_uemis_import(device_data_t *data);
 dc_status_t libdc_buffer_parser(struct dive *dive, device_data_t *data, unsigned char *buffer, int size);
 void logfunc(dc_context_t *context, dc_loglevel_t loglevel, const char *file, unsigned int line, const char *function, const char *msg, void *userdata);
