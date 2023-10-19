@@ -19,6 +19,7 @@
 #include <QShortcut>
 #include <QTimer>
 #include <QUndoStack>
+#include <QInputDialog>
 
 static bool is_vendor_searchable(QString vendor)
 {
@@ -26,6 +27,7 @@ static bool is_vendor_searchable(QString vendor)
 }
 
 DownloadFromDCWidget::DownloadFromDCWidget(const QString &filename, QWidget *parent) : QDialog(parent, QFlag(0)),
+	authDialog(this),
 	filename(filename),
 	downloading(false),
 	previousLast(0),
@@ -36,6 +38,7 @@ DownloadFromDCWidget::DownloadFromDCWidget(const QString &filename, QWidget *par
 #endif
 	currentState(INITIAL)
 {
+	authDialog.setObjectName("authDialog");
 	diveImportedModel = new DiveImportedModel(this);
 	vendorModel.setStringList(vendorList);
 	QShortcut *close = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_W), this);

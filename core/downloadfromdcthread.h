@@ -68,6 +68,13 @@ private:
 	QString m_devBluetoothName;
 };
 
+struct AuthCb {
+public:
+	AuthCb(QObject *thiz);
+
+	dc_authfunc_data_t auth;
+};
+
 class DownloadThread : public QThread {
 	Q_OBJECT
 
@@ -80,8 +87,12 @@ public:
 	bool successful;
 	struct divelog log;
 
+public slots:
+	void doAuthFunc(QString &out);
+
 private:
 	DCDeviceData *m_data;
+	AuthCb m_authcb;
 };
 
 //TODO: C++ify descriptor?
