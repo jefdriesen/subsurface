@@ -29,6 +29,9 @@ public:
 	dc_status_t read(void* data, size_t size, size_t *actual);
 	dc_status_t get_name(char *res, size_t size);
 	dc_status_t read_characteristic(const QBluetoothUuid &uuid, char *res, size_t size);
+	dc_status_t get_pincode(char *data, size_t size);
+	dc_status_t get_accesscode(unsigned char *data, size_t size);
+	dc_status_t set_accesscode(const unsigned char *data, size_t size);
 	dc_status_t poll(int timeout);
 	dc_status_t purge(dc_direction_t direction);
 
@@ -55,6 +58,8 @@ private:
 	unsigned int hw_credit = 0;
 	unsigned int desc_written = 0;
 	int timeout;
+
+	QByteArray accesscode;
 
 	QList<QBluetoothUuid> telit = {
 		QBluetoothUuid(QUuid("{00000001-0000-1000-8000-008025000000}")), // TELIT_DATA_RX

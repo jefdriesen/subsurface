@@ -799,6 +799,30 @@ dc_status_t BLEObject::get_name(char *data, size_t size)
 	return DC_STATUS_SUCCESS;
 }
 
+dc_status_t BLEObject::get_pincode(char *data, size_t size)
+{
+	if (!device.auth || !device.auth->func)
+		 return DC_STATUS_UNSUPPORTED;
+	device.auth->func((unsigned char *)data, size, device.auth->userdata);
+	return DC_STATUS_SUCCESS;
+}
+
+dc_status_t BLEObject::get_accesscode(unsigned char *data, size_t size)
+{
+	if ((size_t)accesscode.size() == size) {
+		memcpy(data, accesscode.data(), size);
+	} else {
+		memset(data, 0, size);
+	}
+	return DC_STATUS_SUCCESS;
+}
+
+dc_status_t BLEObject::set_accesscode(const unsigned char *data, size_t size)
+{
+	accesscode = QByteArray((const char *)data, size);
+	return DC_STATUS_SUCCESS;
+}
+
 dc_status_t BLEObject::read_characteristic(const QBluetoothUuid &uuid, char *res, size_t size)
 {
 	auto s = preferredService();
@@ -834,6 +858,12 @@ dc_status_t qt_ble_ioctl(void *io, unsigned int request, void *data, size_t size
 	switch (request) {
 	case DC_IOCTL_BLE_GET_NAME:
 		return ble->get_name((char *) data, size);
+	case DC_IOCTL_BLE_GET_PINCODE:
+		return ble->get_pincode((char *) data, size);
+	case DC_IOCTL_BLE_GET_ACCESSCODE:
+		return ble->get_accesscode((unsigned char *) data, size);
+	case DC_IOCTL_BLE_SET_ACCESSCODE:
+		return ble->set_accesscode((const unsigned char *) data, size);
 	case DC_IOCTL_BLE_CHARACTERISTIC_READ:
 		quint128 uuid;
 		memcpy(&uuid, data, sizeof(uuid));
