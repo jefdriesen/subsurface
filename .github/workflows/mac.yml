@@ -4,13 +4,9 @@ on:
   push:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
   pull_request:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
 
 
 jobs:
@@ -33,12 +29,6 @@ jobs:
         ref: main
         path: qt-mac
 
-    - name: set the version information
-      id: version_number
-      uses: ./.github/actions/manage-version
-      with:
-        nightly-builds-secret: ${{ secrets.NIGHTLY_BUILDS }}
-
     - name: build Subsurface
       id: build
       run: |
@@ -60,21 +50,8 @@ jobs:
         echo "dmg=$IMG" >> $GITHUB_OUTPUT
 
     - name: publish pull request artifacts
-      if: github.event_name == 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: Subsurface-MacOS-${{ steps.version_number.outputs.version }}
+        name: Subsurface-MacOS
         path: ${{ steps.build.outputs.dmg }}
         compression-level: 0
-
-    # only publish a 'release' on push events (those include merging a PR)
-    - name: upload binaries
-      if: github.event_name == 'push'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.version_number.outputs.version }}
-        repository: ${{ github.repository_owner }}/nightly-builds
-        token: ${{ secrets.NIGHTLY_BUILDS }}
-        prerelease: false
-        fail_on_unmatched_files: true
-        files: ${{ steps.build.outputs.dmg }}
