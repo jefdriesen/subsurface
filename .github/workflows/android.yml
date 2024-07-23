@@ -4,13 +4,9 @@ on:
   push:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
   pull_request:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
 
 jobs:
   build:
@@ -27,25 +23,8 @@ jobs:
         fetch-depth: 0
         submodules: recursive
 
-    - name: set the version information
-      id: version_number
-      uses: ./.github/actions/manage-version
-      with:
-        nightly-builds-secret: ${{ secrets.NIGHTLY_BUILDS }}
-
-    - name: set up the keystore
-      if: github.event_name == 'push'
-      env:
-        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      run: |
-        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > $KEYSTORE_FILE
-
     - name: run build
       id: build
-      env:
-        KEYSTORE_PASSWORD: pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-        BUILDNR: ${{ steps.version_number.outputs.buildnr }}
       run: |
         # this is rather awkward, but it allows us to use the preinstalled
         # Android and Qt versions with relative paths
@@ -63,29 +42,10 @@ jobs:
         git config --global --add safe.directory $GITHUB_WORKSPACE/libdivecomputer
         # get the build number via curl so this works both for a pull request as well as a push
         export OUTPUT_DIR="$GITHUB_WORKSPACE"
-        bash -x ./subsurface/packaging/android/qmake-build.sh -buildnr $BUILDNR
-
-    - name: delete the keystore
-      if: github.event_name == 'push'
-      run: |
-        rm $KEYSTORE_FILE
+        bash -x ./subsurface/packaging/android/qmake-build.sh
 
     - name: publish pull request artifacts
-      if: github.event_name == 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: Subsurface-Android-${{ steps.version_number.outputs.version }}
+        name: Subsurface-Android
         path: Subsurface-mobile-*.apk
-
-    # only publish a 'release' on push events (those include merging a PR)
-    - name: upload binaries
-      if: github.event_name == 'push'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.version_number.outputs.version }}
-        repository:  ${{ github.repository_owner }}/nightly-builds
-        token: ${{ secrets.NIGHTLY_BUILDS }}
-        prerelease: false
-        fail_on_unmatched_files: true
-        files: |
-          Subsurface-mobile-${{ steps.version_number.outputs.version }}.apk
