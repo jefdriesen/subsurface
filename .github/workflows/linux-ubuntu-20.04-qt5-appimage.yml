@@ -4,13 +4,9 @@ on:
   push:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
   pull_request:
     paths-ignore:
     - scripts/docker/**
-    branches:
-    - master
 
 jobs:
   build:
@@ -49,12 +45,6 @@ jobs:
         fetch-depth: 0
         submodules: recursive
 
-    - name: set the version information
-      id: version_number
-      uses: ./.github/actions/manage-version
-      with:
-        nightly-builds-secret: ${{ secrets.NIGHTLY_BUILDS }}
-
     - name: build Subsurface
       run: |
         echo "--------------------------------------------------------------"
@@ -73,8 +63,6 @@ jobs:
         xvfb-run --auto-servernum make check
 
     - name: build appimage
-      env:
-        VERSION: ${{ steps.version_number.outputs.version }}
       run: |
         echo "--------------------------------------------------------------"
         echo "assembling AppImage"
@@ -111,26 +99,12 @@ jobs:
 
         # copy AppImage to the calling VM
         # with GitHub Actions the $GITHUB_WORKSPACE directory is the current working directory at the start of a step
-        cp Subsurface*.AppImage* $GITHUB_WORKSPACE/Subsurface-$VERSION.AppImage
+        cp Subsurface*.AppImage* $GITHUB_WORKSPACE/Subsurface.AppImage
 
     - name: PR artifacts
-      if: github.event_name == 'pull_request'
       # We cannot update this as glibc on 16.04 is too old for node 20.
       uses: actions/upload-artifact@v4
       with:
-        name: Subsurface-Linux-AppImage-${{ steps.version_number.outputs.version }}
-        path: Subsurface-*.AppImage
+        name: Subsurface-Linux-AppImage
+        path: Subsurface.AppImage
         compression-level: 0
-
-    # only publish a 'release' on push events (those include merging a PR)
-    - name: upload binaries
-      if: github.event_name == 'push'
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.version_number.outputs.version }}
-        repository: ${{ github.repository_owner }}/nightly-builds
-        token: ${{ secrets.NIGHTLY_BUILDS }}
-        prerelease: false
-        fail_on_unmatched_files: true
-        files: |
-         ./Subsurface-*.AppImage
