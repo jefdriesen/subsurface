@@ -54,6 +54,8 @@
 #include "commands/command_base.h"
 #include "commands/command.h"
 
+#include <sys/time.h>
+
 #if defined(Q_OS_ANDROID)
 #include <QtAndroid>
 #include "core/serial_usb_android.h"
@@ -1897,7 +1899,14 @@ void writeToAppLogFile(const std::string &logText)
 void QMLManager::writeToAppLogFile(const std::string &logText)
 {
 	if (appLogFileOpen) {
-		std::string line = logText + "\n";
+		struct timeval now = {0};
+		gettimeofday (&now, NULL);
+
+		char prefix[32] = {0};
+		snprintf (prefix, sizeof(prefix), "[%li.%06li] ",
+			now.tv_sec, now.tv_usec);
+
+		std::string line = prefix + logText + "\n";
 		appLogFile.write(line.c_str());
 		appLogFile.flush();
 	}
