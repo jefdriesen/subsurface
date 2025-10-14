@@ -59,8 +59,6 @@ private:
 	unsigned int desc_written = 0;
 	int timeout;
 
-	QByteArray accesscode;
-
 	QList<QBluetoothUuid> telit = {
 		QBluetoothUuid(QUuid("{00000001-0000-1000-8000-008025000000}")), // TELIT_DATA_RX
 		QBluetoothUuid(QUuid("{00000002-0000-1000-8000-008025000000}")), // TELIT_DATA_TX

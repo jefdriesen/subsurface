@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 #include <errno.h>
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
+#endif
 
 #include <QtBluetooth/QBluetoothAddress>
 #include <QLowEnergyController>
@@ -753,6 +759,71 @@ static void checkThreshold()
 #endif
 }
 
+#ifdef _WIN32
+#define ACCESSCODE "%TMP%/accesscode"
+#else
+#define ACCESSCODE "/tmp/accesscode"
+#endif
+
+static void
+dctool_file_write (const char *filename, const unsigned char data[], size_t size)
+{
+	FILE *fp = NULL;
+
+	// Open the file.
+	if (filename) {
+		fp = fopen (filename, "wb");
+	} else {
+		fp = stdout;
+#ifdef _WIN32
+		// Change from text mode to binary mode.
+		_setmode (_fileno (fp), _O_BINARY);
+#endif
+	}
+	if (fp == NULL)
+		return;
+
+	// Write the entire buffer to the file.
+	fwrite (data, 1, size, fp);
+
+	// Close the file.
+	fclose (fp);
+}
+
+static dc_buffer_t *
+dctool_file_read (const char *filename)
+{
+	FILE *fp = NULL;
+
+	// Open the file.
+	if (filename) {
+		fp = fopen (filename, "rb");
+	} else {
+		fp = stdin;
+#ifdef _WIN32
+		// Change from text mode to binary mode.
+		_setmode (_fileno (fp), _O_BINARY);
+#endif
+	}
+	if (fp == NULL)
+		return NULL;
+
+	// Allocate a memory buffer.
+	dc_buffer_t *buffer = dc_buffer_new (0);
+
+	// Read the entire file into the buffer.
+	size_t n = 0;
+	unsigned char block[1024] = {0};
+	while ((n = fread (block, 1, sizeof (block), fp)) > 0) {
+		dc_buffer_append (buffer, block, n);
+	}
+
+	// Close the file.
+	fclose (fp);
+
+	return buffer;
+}
+
 /*
  * NOTE! The 'set_timeout()' function only affects the timeout
  * for qt_ble_read(), not for the various general BLE operations.
@@ -809,17 +880,20 @@ dc_status_t BLEObject::get_pincode(char *data, size_t size)
 
 dc_status_t BLEObject::get_accesscode(unsigned char *data, size_t size)
 {
-	if ((size_t)accesscode.size() == size) {
-		memcpy(data, accesscode.data(), size);
+	dc_buffer_t *buffer = dctool_file_read (ACCESSCODE);
+	if (dc_buffer_get_size(buffer) == size) {
+		memcpy(data, dc_buffer_get_data(buffer), size);
 	} else {
 		memset(data, 0, size);
 	}
+	dc_buffer_free(buffer);
 	return DC_STATUS_SUCCESS;
 }
 
+
 dc_status_t BLEObject::set_accesscode(const unsigned char *data, size_t size)
 {
-	accesscode = QByteArray((const char *)data, size);
+	dctool_file_write (ACCESSCODE, data, size);
 	return DC_STATUS_SUCCESS;
 }
 
