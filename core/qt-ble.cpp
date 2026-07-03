@@ -180,6 +180,7 @@ static const struct uuid_match serial_service_uuids[] = {
         { "6e400001-b5a3-f393-e0a9-e50e24dcca9e", "Nordic Semi UART" },
 	{ "00000001-8c3b-4f2c-a59e-8c08224f3253", "Halcyon Symbios" },
 	{ "84968ffe-d26d-478a-b953-5010bcf58bca", "Seac" },
+	{ "00002760-08c2-11e1-9073-0e8ac72e2011", "Sherwood Logic" },
 	{ NULL, }
 };
 
@@ -304,6 +305,7 @@ static const struct uuid_match skip_characteristics[] = {
 	{ "49535343-4c8a-39b3-2f49-511cff073b7e", "McLean Extreme Avoid", ACCESS_READ | ACCESS_WRITE},
 	{ "00000101-8c3b-4f2c-a59e-8c08224f3253", "Halcyon Symbios Rx", ACCESS_READ},
 	{ "00000201-8c3b-4f2c-a59e-8c08224f3253", "Halcyon Symbios Tx", ACCESS_WRITE},
+	{ "00002760-08c2-11e1-9073-0e8ac72e2013", "Sherwood Logic", ACCESS_READ | ACCESS_WRITE },
 	{ NULL, }
 };
 
